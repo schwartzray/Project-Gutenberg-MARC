@@ -35,9 +35,9 @@ def stub(dc):
     field007 = pymarc.Field(tag='007', data='cr n')
     record.add_ordered_field(field007)
 
-    # 008 in looking at pub date some have a 906 others have a 4 digit year in 260.  Have to right an expression to capture that.  For position 23 could be o for online or s for electronic.  May have to not code for language. Because database is not coded for MARC lang codes only for ISO639-1--use MARCtag041 instead. Position 39 cataloging source d - Other.
-    
-    new_field_value = now.strftime('%y%m%d') + 's||||||||xx |||||o|||||||||||||| d'
+    # 008 in looking at pub date some have a 906 others have a 4 digit year in 260.  Have to write an expression to capture that. If there is a date, use 's' in position 6 then 7-10 for the date. Otherwise '|' for 6 to 10 meaning 'no attempt to code'. Positions 15-17 - Place of publication, production, or execution 'xx#' - No place, unknown, or undetermined.  For position 23 could be o for online or s for electronic.  May have to not code for language. Because database is not coded for MARC lang codes only for ISO639-1--use MARCtag041 instead. Position 39 cataloging source d - Other.
+
+    new_field_value = now.strftime('%y%m%d') + '|||||||||xx |||||o|||||||||||||| d'
     match_found = False
 
     for att in dc.book.attributes:
@@ -75,17 +75,18 @@ def stub(dc):
                )
     record.add_ordered_field(field040)
 
-    for lang in dc.languages:
-    
-      field041 = pymarc.Field(
+    if len(dc.languages):
+  
+        field041 = pymarc.Field(
             tag='041',
             indicators=[' ', '7'],
             subfields=[
-               Subfield(code='a', value=lang.id),
-               Subfield(code='2', value='iso639-1')
-               ]
-               )
-      record.add_ordered_field(field041)
+                    Subfield(code='a', value=str(lang.id)) for lang in dc.languages
+                ] + [
+                    Subfield(code='2', value='iso639-1')
+                ]
+            )
+        record.add_ordered_field(field041)
 
 
     for att in dc.book.attributes:
