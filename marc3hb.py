@@ -12,19 +12,19 @@ def stub(dc):
     now = datetime.now()
 
     # c - Corrected or revised, a - Language material, m - Monograph/Item, 3 - Abbreviated level, u - Unknown
-    
+
     record.leader[5] = 'c'
     record.leader[6] = 'a'
     record.leader[7] = 'm'
     record.leader[17] = '3'
     record.leader[18] = 'u'
-   
+
     field001 = pymarc.Field(tag='001', data=str(dc.project_gutenberg_id))
     record.add_ordered_field(field001)
 
     field003 = pymarc.Field(tag='003', data='UtSlPG')
     record.add_ordered_field(field003)
-    
+
     # m - Computer file/Electronic resource - Coded data elements relating to either a computer file or an electronic resource in form.
 
     field006 = pymarc.Field(tag='006', data='m')
@@ -101,6 +101,16 @@ def stub(dc):
                 ]
             )
         record.add_ordered_field(field041)
+
+    field50 = pymarc.Field(
+            tag='50',
+            indicators=[' ', "4"],
+            subfields=[
+               Subfield(code='a', value=str(loccs.id)) for loccs in dc.loccs
+               ]
+               )
+    record.add_ordered_field(field50)
+
 
 
     for att in dc.book.attributes:
@@ -344,27 +354,48 @@ def stub(dc):
     # Author name
     num_auths = len(dc.authors)
     if num_auths:
-    	for auth in dc.authors:
-            field100 = pymarc.Field(
-            	tag='100',
-            	indicators=['1', ' '],
-            	subfields=[
-                    Subfield(code='a', value=re.sub(r'\(([^)]+)\)', r'$q(\1),', str(auth.name))),
-                    Subfield(code='d', value= if auth.birthdate or auth.deathdate: subfd = f"{str(auth.birthdate) if str(auth.birthdate) else ''}" + f"{('-'+ str(auth.deathdate)) if str(auth.birthdate) else ''}"),  
-                ]
-            )
-            record.add_ordered_field(field100)
+          for auth in dc.authors[0:1]:
+               if auth.birthdate or auth.deathdate:
+                         field100 = pymarc.Field(
+                              tag='100',
+                              indicators=['1', ' '],
+                              subfields=[
+                                        Subfield(code='a', value=re.sub(r'\(([^)]+)\)', r'$q(\1)', str(auth.name)+',')),
+                                        Subfield(code='d', value=str(auth.birthdate) + '-' + str(auth.deathdate)),   
+                              ]
+                         )
+                         record.add_ordered_field(field100)
+               else:
+                         field100 = pymarc.Field(
+                              tag='100',
+                              indicators=['1', ' '],
+                              subfields=[
+                                        Subfield(code='a', value=re.sub(r'\(([^)]+)\)', r'$q(\1)', str(auth.name))),
+                              ]
+                         )
+                         record.add_ordered_field(field100)
     if num_auths > 1:
-        for auth in dc.authors[1:]:
-            field = pymarc.Field(
-                tag='700',
-                indicators=['1', ' '],
-                subfields=[
-                    Subfield(code='a', value=re.sub(r'\(([^)]+)\)', r'$q(\1),', str(auth.name))),
-                    Subfield(code='d', value=str(auth.birthdate) + '-' + str(auth.deathdate)),
-                ]
-            )
-            record.add_ordered_field(field)
+          for auth in dc.authors[1:]:
+               if auth.birthdate or auth.deathdate:
+                         field700 = pymarc.Field(
+                              tag='700',
+                              indicators=['1', ' '],
+                              subfields=[
+                                        Subfield(code='a', value=re.sub(r'\(([^)]+)\)', r'$q(\1)', str(auth.name)+',')),
+                                        Subfield(code='d', value=str(auth.birthdate) + '-' + str(auth.deathdate)),   
+                              ]
+                         )
+                         record.add_ordered_field(field700)
+               else:
+                         field700 = pymarc.Field(
+                              tag='700',
+                              indicators=['1', ' '],
+                              subfields=[
+                                        Subfield(code='a', value=re.sub(r'\(([^)]+)\)', r'$q(\1)', str(auth.name))),
+                              ]
+                         )
+                         record.add_ordered_field(field700)
+
 #f"{auth.birthdate if auth.birthdate else ''}" + f"{('-'+ auth.deathdate) if auth.birthdate else ''}"
 
  # Add Subfield to 245 indicating format
@@ -444,12 +475,12 @@ def add_license(record, dc):
 def add_subject(record, dc):
     if dc.subjects:
      field653 = pymarc.Field(
-    	tag='653', 
-    	indicators=[' ', ' '],
-    	subfields=[
-    	    Subfield(code='a', data=dc.subjects),
-    	    ]
-    	   )
+     tag='653', 
+     indicators=[' ', ' '],
+     subfields=[
+         Subfield(code='a', data=dc.subjects),
+         ]
+        )
     record.add_ordered_field(field653)
 
 
