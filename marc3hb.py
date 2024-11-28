@@ -12,13 +12,18 @@ OB = GutenbergDatabase.Objectbase(False)
 session = OB.get_session()
 books = session.execute(select(Book.pk))
 num = 0
-for booknum in books.scalars().all():
- num += 1
-num
-
 
 # Stub function definiton
+
 def stub(dc):
+    global num
+    if dc.book is None:
+       #print(f"WARNING: no book for {dc.book_id}")
+       return None  # or handle the case as needed
+    for booknum in books.scalars().all():
+       num += 1
+    num
+
     record = pymarc.Record()
     now = datetime.now()
 
@@ -42,12 +47,12 @@ def stub(dc):
     record.add_ordered_field(field006)
 
     # c - Electronic resource, r - Remote, n - Not applicable
-   
+    
     field007 = pymarc.Field(tag='007', data='cr n')
     record.add_ordered_field(field007)
 
     # 008 in looking at pub date some have a 906 others have a 4 digit year in 260.  Have to write an expression to capture that. If there is a date, use 'r' in position 6 then 11-14 for the date. Use year in release date for 7 to 10. Positions 15-17 - Place of publication, production, or execution 'utu'.  For position 23 'o' for online.  Not coding for language, because database is not coded for MARC lang codes only for ISO639-1--use MARCtag041 instead. Position 39 cataloging source d - Other.
-   
+    
     new_field_value = now.strftime('%y%m%d') + '|||||||||utu|||||o|||||||||||||| d'
     match_found = False
 
@@ -55,6 +60,7 @@ def stub(dc):
      if (att.fk_attriblist == 906 and att.fk_attriblist is not None) or (att.fk_attriblist == 260 and re.search(r'\b\d{4}\b', str(att.fk_attriblist))):
         new_field_value = now.strftime('%y%m%d') + 'r' + str(dc.release_date)[:4] + str(att.text) + 'utu|||||o|||||||||||||| d'
         match_found = True
+        pass
         break
 
     if not match_found:
@@ -63,10 +69,10 @@ def stub(dc):
     field008 = pymarc.Field(tag='008', data=new_field_value)
     record.add_ordered_field(field008)
 
-     
+      
     for att in dc.book.attributes:
      if att.fk_attriblist == 10:
-   
+    
         field010 = pymarc.Field(
             tag='010',
             indicators=[' ', ' '],
@@ -79,8 +85,8 @@ def stub(dc):
 
     for att in dc.book.attributes:
      if att.fk_attriblist == 20:
-   
-        field010 = pymarc.Field(
+    
+        field020 = pymarc.Field(
             tag='020',
             indicators=[' ', ' '],
             subfields=[
@@ -101,7 +107,7 @@ def stub(dc):
 
 
     if len(dc.languages):
-   
+    
         field041 = pymarc.Field(
             tag='041',
             indicators=[' ', '7'],
@@ -126,7 +132,7 @@ def stub(dc):
 
     for att in dc.book.attributes:
      if att.fk_attriblist == 240:
-   
+    
         field240 = pymarc.Field(
             tag='240',
             indicators=['1', str(att.nonfiling)],
@@ -138,7 +144,7 @@ def stub(dc):
 
     for att in dc.book.attributes:
      if att.fk_attriblist == 246:
-   
+    
         field246 = pymarc.Field(
             tag='246',
             indicators=['1', ' '],
@@ -150,7 +156,7 @@ def stub(dc):
 
     for att in dc.book.attributes:
      if att.fk_attriblist == 250:
-   
+    
         field250 = pymarc.Field(
             tag='250',
             indicators=[' ', ' '],
@@ -162,7 +168,7 @@ def stub(dc):
 
     for att in dc.book.attributes:
      if att.fk_attriblist == 300:
-   
+    
         field300 = pymarc.Field(
             tag='300',
             indicators=[' ', ' '],
@@ -219,7 +225,7 @@ def stub(dc):
 
     for att in dc.book.attributes:
      if att.fk_attriblist == 440:
-   
+    
         field490 = pymarc.Field(
             tag='490',
             indicators=['1', ' '],
@@ -231,7 +237,7 @@ def stub(dc):
 
     for att in dc.book.attributes:
      if att.fk_attriblist == 440:
-   
+    
         field830 = pymarc.Field(
             tag='830',
             indicators=[' ', '0'],
@@ -245,7 +251,7 @@ def stub(dc):
 
     for att in dc.book.attributes:
      if att.fk_attriblist == 500:
-   
+    
         field500 = pymarc.Field(
             tag='500',
             indicators=[' ', " "],
@@ -254,7 +260,7 @@ def stub(dc):
                ]
                )
         record.add_ordered_field(field500)
-       
+        
     field500 = pymarc.Field(
             tag='500',
             indicators=[' ', " "],
@@ -263,12 +269,12 @@ def stub(dc):
                ]
                )
     record.add_ordered_field(field500)
-       
-       
+        
+        
 
     for att in dc.book.attributes:
      if att.fk_attriblist == 505:
-   
+    
         field505 = pymarc.Field(
             tag='505',
             indicators=['0', ' '],
@@ -281,7 +287,7 @@ def stub(dc):
 
     for att in dc.book.attributes:
      if att.fk_attriblist == 508:
-   
+    
         field508 = pymarc.Field(
             tag='508',
             indicators=[' ', ' '],
@@ -293,8 +299,8 @@ def stub(dc):
 
     for att in dc.book.attributes:
      if att.fk_attriblist == 520:
-   
-        field508 = pymarc.Field(
+    
+        field520 = pymarc.Field(
             tag='520',
             indicators=[' ', ' '],
             subfields=[
@@ -305,7 +311,7 @@ def stub(dc):
 
     for att in dc.book.attributes:
      if att.fk_attriblist == 546:
-   
+    
         field546 = pymarc.Field(
             tag='546',
             indicators=[' ', ' '],
@@ -318,7 +324,7 @@ def stub(dc):
 
 
     for subject in dc.subjects:
-   
+    
         field653 = pymarc.Field(
             tag='653',
             indicators=[' ', ' '],
@@ -351,7 +357,7 @@ def stub(dc):
 
     for att in dc.book.attributes:
      if att.fk_attriblist == 904:
-   
+    
         field856 = pymarc.Field(
             tag='856',
             indicators=['4', ' '],
@@ -372,7 +378,7 @@ def stub(dc):
                               indicators=['1', ' '],
                               subfields=[
                                         Subfield(code='a', value=re.sub(r'\(([^)]+)\)', r'$q(\1)', str(auth.name)+',')),
-                                        Subfield(code='d', value=str(auth.birthdate) + '-' + str(auth.deathdate)),  
+                                        Subfield(code='d', value=str(auth.birthdate) + '-' + str(auth.deathdate)),   
                               ]
                          )
                          record.add_ordered_field(field100)
@@ -393,7 +399,7 @@ def stub(dc):
                               indicators=['1', ' '],
                               subfields=[
                                         Subfield(code='a', value=re.sub(r'\(([^)]+)\)', r'$q(\1)', str(auth.name)+',')),
-                                        Subfield(code='d', value=str(auth.birthdate) + '-' + str(auth.deathdate)),  
+                                        Subfield(code='d', value=str(auth.birthdate) + '-' + str(auth.deathdate)),   
                               ]
                          )
                          record.add_ordered_field(field700)
@@ -412,7 +418,7 @@ def stub(dc):
     # Add Subfield to 245 indicating format
     for att in dc.book.attributes:
       if att.fk_attriblist == 245:
-     
+      
           if '\n'in dc.title:
 
            field245 = pymarc.Field(
@@ -424,7 +430,7 @@ def stub(dc):
                       ]
          )
           else:
-       
+        
            for att in dc.book.attributes:
             if att.fk_attriblist == 245:
                
@@ -487,7 +493,7 @@ def add_license(record, dc):
 def add_subject(record, dc):
     if dc.subjects:
      field653 = pymarc.Field(
-     tag='653',
+     tag='653', 
      indicators=[' ', ' '],
      subfields=[
          Subfield(code='a', data=dc.subjects),
@@ -532,12 +538,11 @@ with open("combined_output.txt69000f", "w") as text_file:
 
 print("Combined records written to combined_output.txt")
 
-
-
 all_records = []  # Create a list to store all records
 
-for i in range(69195):
-    booknums = list(range(1, 69195))  # Replace with your actual book numbers
+
+for i in range(10000):
+    booknums = list(range(1, 10195))  # Replace with your actual book numbers
 
     dc = DublinCoreObject()
     dc.load_from_database(booknums[i])
@@ -546,10 +551,31 @@ for i in range(69195):
     all_records.append(record)  # Append each record to the list
 
 # Write all records to one MARC file
-with open("combined_output.mrc", "wb") as marc_file:
+with open("combined_output10195.mrc", "wb") as marc_file:
     writer = MARCWriter(marc_file)
     for record in all_records:
         writer.write(record)
     writer.close()
 
 print("Combined records written to combined_output.mrc")
+
+all_records = []  # Create a list to store all records
+
+for i in range(10000):
+    booknums = list(range(59000, 69195))  # Replace with your actual book numbers
+
+    dc = DublinCoreObject()
+    dc.load_from_database(booknums[i])
+
+    record = stub(dc)
+    all_records.append(record)  # Append each record to the list
+
+# Write all records to one MARC file
+with open("combined_output69195.mrc", "wb") as marc_file:
+    writer = MARCWriter(marc_file)
+    for record in all_records:
+        writer.write(record)
+    writer.close()
+
+print("Combined records written to combined_output.mrc")
+
