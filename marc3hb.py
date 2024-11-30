@@ -548,7 +548,12 @@ for i in range(10000):
     dc.load_from_database(booknums[i])
 
     record = stub(dc)
-    all_records.append(record)  # Append each record to the list
+
+    # Check if the record is a valid pymarc.Record object
+    if isinstance(record, Record):
+        all_records.append(record)  # Append each valid record to the list
+    else:
+        print(f"Skipping invalid record for book number {booknums[i]}")
 
 # Write all records to one MARC file
 with open("combined_output10195.mrc", "wb") as marc_file:
@@ -561,14 +566,18 @@ print("Combined records written to combined_output.mrc")
 
 all_records = []  # Create a list to store all records
 
-for i in range(10000):
-    booknums = list(range(59000, 69195))  # Replace with your actual book numbers
+for i in range(20000):
+    booknums = list(range(49000, 69195))  # Replace with your actual book numbers
 
     dc = DublinCoreObject()
     dc.load_from_database(booknums[i])
 
     record = stub(dc)
-    all_records.append(record)  # Append each record to the list
+    # Check if the record is a valid pymarc.Record object
+    if isinstance(record, Record):
+        all_records.append(record)  # Append each valid record to the list
+    else:
+        print(f"Skipping invalid record for book number {booknums[i]}")
 
 # Write all records to one MARC file
 with open("combined_output69195.mrc", "wb") as marc_file:
