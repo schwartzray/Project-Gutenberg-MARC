@@ -310,6 +310,19 @@ def stub(dc):
         record.add_ordered_field(field520)
 
     for att in dc.book.attributes:
+     if att.fk_attriblist == 521:
+    
+        field520 = pymarc.Field(
+            tag='521',
+            indicators=['8', ' '],
+            subfields=[
+               Subfield(code='a', value=str(att.text)),
+               ]
+               )
+        record.add_ordered_field(field521)
+
+
+    for att in dc.book.attributes:
      if att.fk_attriblist == 546:
     
         field546 = pymarc.Field(
@@ -368,17 +381,40 @@ def stub(dc):
         record.add_ordered_field(field856)
 
 
-    # Author name
+    # Author name 
     num_auths = len(dc.authors)
     if num_auths:
           for auth in dc.authors[0:1]:
-               if auth.birthdate or auth.deathdate:
+               if (auth.birthdate or auth.deathdate) and "(" in str(auth.name):
                          field100 = pymarc.Field(
                               tag='100',
                               indicators=['1', ' '],
                               subfields=[
-                                        Subfield(code='a', value=re.sub(r'\(([^)]+)\)', r'$q(\1)', str(auth.name)+',')),
-                                        Subfield(code='d', value=str(auth.birthdate) + '-' + str(auth.deathdate)),   
+                                        Subfield(code='a', value=re.sub(r'\s*\([^)]*\)', '', str(auth.name))),
+                                        Subfield(code='q', value=re.search(r'\(([^)]+)\)', str(auth.name)).group(0) + ','),
+                                        Subfield(code='d', value=(f"{abs(auth.birthdate)} BCE" if auth.birthdate and auth.birthdate < 0 else str(auth.birthdate) if auth.birthdate is not None else '') + '-' + (f"{abs(auth.deathdate)} BCE" if auth.deathdate and auth.deathdate < 0 else str(auth.deathdate) if auth.deathdate is not None else '')
+), 
+                              ]
+                         )
+                         record.add_ordered_field(field100)
+               elif (auth.birthdate or auth.deathdate) and "(" not in str(auth.name):
+                         field100 = pymarc.Field(
+                              tag='100',
+                              indicators=['1', ' '],
+                              subfields=[
+                                        Subfield(code='a', value=re.sub(r'\s*\([^)]*\)', '', str(auth.name) + ',')),
+                                        Subfield(code='d', value=(f"{abs(auth.birthdate)} BCE" if auth.birthdate and auth.birthdate < 0 else str(auth.birthdate) if auth.birthdate is not None else '') + '-' + (f"{abs(auth.deathdate)} BCE" if auth.deathdate and auth.deathdate < 0 else str(auth.deathdate) if auth.deathdate is not None else '')
+),
+                              ]
+                         )
+                         record.add_ordered_field(field100)
+               elif (auth.birthdate is None and auth.deathdate is None) and "(" in str(auth.name):
+                         field100 = pymarc.Field(
+                              tag='100',
+                              indicators=['1', ' '],
+                              subfields=[
+                                        Subfield(code='a', value=re.sub(r'\s*\([^)]*\)', '', str(auth.name) + ',')),
+                                        Subfield(code='q', value=re.search(r'\(([^)]+)\)', str(auth.name)).group(0) + '.'),   
                               ]
                          )
                          record.add_ordered_field(field100)
@@ -387,19 +423,41 @@ def stub(dc):
                               tag='100',
                               indicators=['1', ' '],
                               subfields=[
-                                        Subfield(code='a', value=re.sub(r'\(([^)]+)\)', r'$q(\1)', str(auth.name))),
-                              ]
+                                        Subfield(code='a', value=re.sub(r'\s*\([^)]*\)', '', str(auth.name))),
+                                                                      ]
                          )
                          record.add_ordered_field(field100)
     if num_auths > 1:
           for auth in dc.authors[1:]:
-               if auth.birthdate or auth.deathdate:
+               if (auth.birthdate or auth.deathdate) and "(" in str(auth.name):
+
                          field700 = pymarc.Field(
                               tag='700',
                               indicators=['1', ' '],
                               subfields=[
-                                        Subfield(code='a', value=re.sub(r'\(([^)]+)\)', r'$q(\1)', str(auth.name)+',')),
-                                        Subfield(code='d', value=str(auth.birthdate) + '-' + str(auth.deathdate)),   
+                                        Subfield(code='a', value=re.sub(r'\s*\([^)]*\)', '', str(auth.name))),
+                                        Subfield(code='q', value=re.search(r'\(([^)]+)\)', str(auth.name)).group(0) + ','),
+                                        Subfield(code='d', value=(f"{abs(auth.birthdate)} BCE" if auth.birthdate and auth.birthdate < 0 else str(auth.birthdate) if auth.birthdate is not None else '') + '-' + (f"{abs(auth.deathdate)} BCE" if auth.deathdate and auth.deathdate < 0 else str(auth.deathdate) if auth.deathdate is not None else '')),
+                              ]
+                         )
+                         record.add_ordered_field(field700)
+               elif (auth.birthdate or auth.deathdate) and "(" not in str(auth.name):
+                         field700 = pymarc.Field(
+                              tag='700',
+                              indicators=['1', ' '],
+                              subfields=[
+                                        Subfield(code='a', value=re.sub(r'\s*\([^)]*\)', '', str(auth.name) + ',')),
+                                        Subfield(code='d', value=(f"{abs(auth.birthdate)} BCE" if auth.birthdate and auth.birthdate < 0 else str(auth.birthdate) if auth.birthdate is not None else '') + '-' + (f"{abs(auth.deathdate)} BCE" if auth.deathdate and auth.deathdate < 0 else str(auth.deathdate) if auth.deathdate is not None else '')),
+                              ]
+                         )
+                         record.add_ordered_field(field700)
+               elif (auth.birthdate is None and auth.deathdate is None) and "(" in str(auth.name):
+                         field700 = pymarc.Field(
+                              tag='700',
+                              indicators=['1', ' '],
+                              subfields=[
+                                        Subfield(code='a', value=re.sub(r'\s*\([^)]*\)', '', str(auth.name) + ',')),
+                                        Subfield(code='q', value=re.search(r'\(([^)]+)\)', str(auth.name)).group(0) + '.'),   
                               ]
                          )
                          record.add_ordered_field(field700)
@@ -408,14 +466,12 @@ def stub(dc):
                               tag='700',
                               indicators=['1', ' '],
                               subfields=[
-                                        Subfield(code='a', value=re.sub(r'\(([^)]+)\)', r'$q(\1)', str(auth.name))),
-                              ]
+                                        Subfield(code='a', value=re.sub(r'\s*\([^)]*\)', '', str(auth.name))),
+                                                                      ]
                          )
                          record.add_ordered_field(field700)
 
-    #f"{auth.birthdate if auth.birthdate else ''}" + f"{('-'+ auth.deathdate) if auth.birthdate else ''}"
 
-    # Add Subfield to 245 indicating format
     for att in dc.book.attributes:
       if att.fk_attriblist == 245:
       
@@ -502,72 +558,38 @@ def add_subject(record, dc):
     record.add_ordered_field(field653)
 '''
 
-print ("Starting point for this program...")
-print("Generate 100 records for the 1st 100 records")
-
-# Generate 100 records for the 1st 100
-all_records = []  # Create a list to store all records
-for i in range(100):
-    booknums = list(range(1, 101))  # Replace with your actual book numbers
-    dc = DublinCoreObject()
-    dc.load_from_database(booknums[i])
-    record = stub(dc)
-    all_records.append(record)  # Append each record to the list
-
-# Write all records to one file
-with open("combined_output.txt100f", "w") as text_file:
-    for record in all_records:
-        text_file.write(str(record) + "\n")  # Separate records with a newline
-
-print("Combined records written to combined_output.txt")
-
-print("Generate 100 records for the last 100 records")
-# Generate 100 records for the last 100
-all_records = []  # Create a list to store all records
-for i in range(100):
-    booknums = list(range(68775, 69195))  # Replace with your actual book numbers
-    dc = DublinCoreObject()
-    dc.load_from_database(booknums[i])
-    record = stub(dc)
-    all_records.append(record)  # Append each record to the list
-
-# Write all records to one file
-with open("combined_output.txt69000f", "w") as text_file:
-    for record in all_records:
-        text_file.write(str(record) + "\n")  # Separate records with a newline
-
-print("Combined records written to combined_output.txt")
-
-all_records = []  # Create a list to store all records
 
 
-for i in range(10000):
-    booknums = list(range(1, 10195))  # Replace with your actual book numbers
+#all_records = []  # Create a list to store all records
 
-    dc = DublinCoreObject()
-    dc.load_from_database(booknums[i])
 
-    record = stub(dc)
+#for i in range(10000):
+#    booknums = list(range(1, 10195))  # Replace with your actual book numbers
+
+#    dc = DublinCoreObject()
+#    dc.load_from_database(booknums[i])
+
+#    record = stub(dc)
 
     # Check if the record is a valid pymarc.Record object
-    if isinstance(record, Record):
-        all_records.append(record)  # Append each valid record to the list
-    else:
-        print(f"Skipping invalid record for book number {booknums[i]}")
+#    if isinstance(record, Record):
+#        all_records.append(record)  # Append each valid record to the list
+#    else:
+#        print(f"Skipping invalid record for book number {booknums[i]}")
 
 # Write all records to one MARC file
-with open("combined_output10195.mrc", "wb") as marc_file:
-    writer = MARCWriter(marc_file)
-    for record in all_records:
-        writer.write(record)
-    writer.close()
+#with open("combined_output10195.mrc", "wb") as marc_file:
+#    writer = MARCWriter(marc_file)
+#    for record in all_records:
+#        writer.write(record)
+#    writer.close()
 
-print("Combined records written to combined_output.mrc")
+#print("Combined records written to combined_output.mrc")
 
 all_records = []  # Create a list to store all records
 
-for i in range(20000):
-    booknums = list(range(49000, 69195))  # Replace with your actual book numbers
+for i in range(1000):
+    booknums = list(range(1, 2000))  # Replace with your actual book numbers
 
     dc = DublinCoreObject()
     dc.load_from_database(booknums[i])
@@ -580,7 +602,7 @@ for i in range(20000):
         print(f"Skipping invalid record for book number {booknums[i]}")
 
 # Write all records to one MARC file
-with open("combined_output69195.mrc", "wb") as marc_file:
+with open("combined_output1000.mrc", "wb") as marc_file:
     writer = MARCWriter(marc_file)
     for record in all_records:
         writer.write(record)
