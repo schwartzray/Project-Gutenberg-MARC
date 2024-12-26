@@ -586,26 +586,24 @@ def add_subject(record, dc):
 
 #print("Combined records written to combined_output.mrc")
 
-all_records = []  # Create a list to store all records
+#all_records = []  # Create a list to store all records
 
-for i in range(1000):
-    booknums = list(range(1, 2000))  # Replace with your actual book numbers
-
-    dc = DublinCoreObject()
-    dc.load_from_database(booknums[i])
-
-    record = stub(dc)
-    # Check if the record is a valid pymarc.Record object
-    if isinstance(record, Record):
-        all_records.append(record)  # Append each valid record to the list
-    else:
-        print(f"Skipping invalid record for book number {booknums[i]}")
 
 # Write all records to one MARC file
 with open("combined_output1000.mrc", "wb") as marc_file:
     writer = MARCWriter(marc_file)
-    for record in all_records:
-        writer.write(record)
+    for i in range(1000):
+        booknums = list(range(1, 2000))  # Replace with your actual book numbers
+    
+        dc = DublinCoreObject(session=session)
+        dc.load_from_database(booknums[i])
+    
+        record = stub(dc)
+        # Check if the record is a valid pymarc.Record object
+        if isinstance(record, Record):
+            writer.write(record)
+        else:
+            print(f"Skipping invalid record for book number {booknums[i]}")
     writer.close()
 
 print("Combined records written to combined_output.mrc")
