@@ -3,26 +3,40 @@ import pymarc
 from pymarc import Subfield, Record, Field, MARCWriter
 from datetime import datetime
 from sqlalchemy import select
+from sqlalchemy import not_
+from sqlalchemy.orm import joinedload
 from libgutenberg.Models import Book
+from libgutenberg import Models
 from libgutenberg import GutenbergDatabase
 from libgutenberg.DublinCoreMapping import DublinCoreObject
 from os.path import join
 
 OB = GutenbergDatabase.Objectbase(False)
 session = OB.get_session()
-books = session.execute(select(Book.pk))
+#books = session.execute(select(Book.pk))
+#books = session.execute(
+#    select(Book.pk).options(joinedload(Book.categories)).filter(not_(Book.categories.any()))
+#)
+#books = session.execute(
+#    select(Book).filter(Book.pk==ebook).filter().categories
+#)
+
+books = session.query(Models.Book).filter(Models.Book.pk == ebook).first().categories
+#books = session.execute(
+#    select(Book).filter(not_(Book.categories.any()))
+#)
 num = 0
 
 # Stub function definiton
 
 def stub(dc):
     global num
-    if dc.book is None:
+    if dc.book is None or dc.categories:
        #print(f"WARNING: no book for {dc.book_id}")
        return None  # or handle the case as needed
-    for booknum in books.scalars().all():
+    for book in books.scalars().all():
        num += 1
-    num
+    #num
 
     record = pymarc.Record()
     now = datetime.now()
