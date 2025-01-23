@@ -19,9 +19,9 @@ booknums = []
 for ebook in books:
     booknum = ebook[0]
     booknums.append(booknum)
-    if booknum >100:
-        break
-print(booknums)
+#    if booknum >100:
+#        break
+#print(booknums)
 
 # Stub function definiton
 
