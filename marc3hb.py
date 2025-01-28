@@ -15,24 +15,21 @@ session = OB.get_session()
 
 books = session.execute(select(Book.pk).filter(not_(Book.categories.any()))) 
 
-booknums = []
-for ebook in books:
-    booknum = ebook[0]
-    booknums.append(booknum)
-#    if booknum >100:
-#        break
-#print(booknums)
 
 # Stub function definiton
 
 def stub(dc):
     global booknum
+    booknums = []
+    for ebook in books:
+        booknum = ebook[0]
+        booknums.append(booknum)
     if dc.book is None or dc.categories:
        #print(f"WARNING: no book for {dc.book_id}")
        return None  # or handle the case as needed
     for book in books.scalars().all():
        booknum += 1
-    #num
+   
 
     record = pymarc.Record()
     now = datetime.now()
