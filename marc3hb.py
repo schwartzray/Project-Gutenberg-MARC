@@ -12,9 +12,9 @@ from os.path import join
 
 OB = GutenbergDatabase.Objectbase(False)
 
-# Stub function definiton
+# book_record function definiton
 
-def stub(dc):
+def book_record(dc):
     # Make sure the dc object exists in db
     if not dc.book: 
        print(f"No book for {dc}")
@@ -541,7 +541,7 @@ def main():
             dc = DublinCoreObject(session=session)
             dc.load_from_database(booknum.pk)  # booknum is a tuple: (pk,)
         
-            record = stub(dc)
+            record = book_record(dc)
             # Check if the record is a valid pymarc.Record object
             if isinstance(record, Record):
                 writer.write(record)
