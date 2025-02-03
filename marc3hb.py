@@ -11,10 +11,6 @@ from libgutenberg.DublinCoreMapping import DublinCoreObject
 from os.path import join
 
 OB = GutenbergDatabase.Objectbase(False)
-session = OB.get_session()
-
-books = session.execute(select(Book.pk).filter(not_(Book.categories.any()))) 
-
 
 # Stub function definiton
 
@@ -550,51 +546,8 @@ def add_license(record, dc):
         )
         record.add_ordered_field(field540)
 
-
-# Add_Subject function definiton
-'''
-def add_subject(record, dc):
-    if dc.subjects:
-     field653 = pymarc.Field(
-     tag='653', 
-     indicators=[' ', ' '],
-     subfields=[
-         Subfield(code='a', data=dc.subjects),
-         ]
-        )
-    record.add_ordered_field(field653)
-'''
-
-
-
-#all_records = []  # Create a list to store all records
-
-
-#for i in range(10000):
-#    booknums = list(range(1, 10195))  # Replace with your actual book numbers
-
-#    dc = DublinCoreObject()
-#    dc.load_from_database(booknums[i])
-
-#    record = stub(dc)
-
-    # Check if the record is a valid pymarc.Record object
-#    if isinstance(record, Record):
-#        all_records.append(record)  # Append each valid record to the list
-#    else:
-#        print(f"Skipping invalid record for book number {booknums[i]}")
-
-# Write all records to one MARC file
-#with open("combined_output10195.mrc", "wb") as marc_file:
-#    writer = MARCWriter(marc_file)
-#    for record in all_records:
-#        writer.write(record)
-#    writer.close()
-
-#print("Combined records written to combined_output.mrc")
-
-#all_records = []  # Create a list to store all records
-
+session = OB.get_session()
+books = session.execute(select(Book.pk).filter(not_(Book.categories.any())))
 
 # Write all records to one MARC file
 with open("combined_output1000.mrc", "wb") as marc_file:
