@@ -15,18 +15,16 @@ OB = GutenbergDatabase.Objectbase(False)
 # Stub function definiton
 
 def stub(dc):
-    global booknum
-    booknums = []
-    for ebook in books:
-        booknum = ebook[0]
-        booknums.append(booknum)
-    if dc.book is None or dc.categories:
-       #print(f"WARNING: no book for {dc.book_id}")
-       return None  # or handle the case as needed
-    for book in books.scalars().all():
-       booknum += 1
+    # Make sure the dc object exists in db
+    if not dc.book: 
+       print(f"No book for {dc}")
+       return
+    # Make sure the dc object is of type 'text'
+    if dc.categories: 
+       for category in dc.categories:
+            print(f"{dc.book.pk} is a {category}")
+       return
    
-
     record = pymarc.Record()
     now = datetime.now()
 
@@ -527,44 +525,34 @@ def stub(dc):
         )
       record.add_ordered_field(field534)
 
-
-    add_license(record, dc)
-
     return record
 
+MAXBOOKNUM = 1000
 
-# Add_license function definition
-def add_license(record, dc):
-    if dc.rights:
-        # Add 540 field (terms governing use)
-        field540 = pymarc.Field(
-            tag='540',
-            indicators=[' ', ' '],
-            subfields=[
-                Subfield(code='a', value=dc.rights),
-            ]
-        )
-        record.add_ordered_field(field540)
-
-session = OB.get_session()
-books = session.execute(select(Book.pk).filter(not_(Book.categories.any())))
-
-# Write all records to one MARC file
-with open("combined_output1000.mrc", "wb") as marc_file:
-    writer = MARCWriter(marc_file)
-    for i in range(1000):
-        booknums = list(range(1, 2000))  # Replace with your actual book numbers
+def main():
+    session = OB.get_session()
+    booknums = session.execute(select(Book.pk).filter(not_(Book.categories.any())))
     
-        dc = DublinCoreObject(session=session)
-        dc.load_from_database(booknums[i])
+    # Write all records to one MARC file
+    with open("combined_output1000.mrc", "wb") as marc_file:
+        writer = MARCWriter(marc_file)
+        for booknum in booknums:
+            
+            dc = DublinCoreObject(session=session)
+            dc.load_from_database(booknum.pk)  # booknum is a tuple: (pk,)
+        
+            record = stub(dc)
+            # Check if the record is a valid pymarc.Record object
+            if isinstance(record, Record):
+                writer.write(record)
+            else:
+                print(f"Skipping invalid record for book number {booknum.pk}")
+            if booknum.pk > MAXBOOKNUM:
+                break
+        writer.close()
     
-        record = stub(dc)
-        # Check if the record is a valid pymarc.Record object
-        if isinstance(record, Record):
-            writer.write(record)
-        else:
-            print(f"Skipping invalid record for book number {booknums[i]}")
-    writer.close()
+    print("Combined records written to combined_output.mrc")
 
-print("Combined records written to combined_output.mrc")
-
+# boilerplate for main method
+if __name__ == '__main__':
+    main ()
