@@ -12,6 +12,40 @@ from os.path import join
 
 OB = GutenbergDatabase.Objectbase(False)
 
+# deal with parentheses in author name : 'Ray S. (Librarian)' -> 'Ray S.', '(Librarian)'
+RE_NAME_PAREN = re.compile(r'(\s*\([^)]*\))')
+def auth_paren(a_name):
+    nm = RE_NAME_PAREN.search(a_name)
+    if nm:
+        return a_name.replace(nm.group(1), ''), nm.group(1)
+    else:
+        return a_name, None
+
+# format the author birth and death dates 
+def auth_dates(author):
+    def format_dates(d1, d2):
+        """ Format dates """
+        # Hack to display 9999? if only d2 is set
+        if d2 and not d1:
+            if d2 < 0:
+                # remember, the was no year 0; 0 represents 1 BCE
+                return "%d? BCE" % abs(d2 - 1)
+            return "%d?" % d2
+        if not d1:
+            return ''
+        if d2 and d1 != d2:
+            d3 = max(d1, d2)
+            if d3 < 0:
+                return "%d? BCE" % abs(d3 - 1)
+            return "%d?" % d3
+        if d1 < 0:
+            return "%d BCE" % abs(d1 - 1)
+        return str(d1)
+
+    born = format_dates(author.birthdate, author.birthdate2)
+    died = format_dates(author.deathdate, author.deathdate2)
+    return f'{born}-{died}'
+
 # book_record function definiton
 
 def book_record(dc):
@@ -384,93 +418,20 @@ def book_record(dc):
 
     # Author name 
     num_auths = len(dc.authors)
-    if num_auths:
-          for auth in dc.authors[0:1]:
-               if (auth.birthdate or auth.deathdate) and "(" in str(auth.name):
-                         field100 = pymarc.Field(
-                              tag='100',
-                              indicators=['1', ' '],
-                              subfields=[
-                                        Subfield(code='a', value=re.sub(r'\s*\([^)]*\)', '', str(auth.name))),
-                                        Subfield(code='q', value=re.search(r'\(([^)]+)\)', str(auth.name)).group(0) + ','),
-                                        Subfield(code='d', value=(f"{abs(auth.birthdate)} BCE" if auth.birthdate and auth.birthdate < 0 else str(auth.birthdate) if auth.birthdate is not None else '') + '-' + (f"{abs(auth.deathdate)} BCE" if auth.deathdate and auth.deathdate < 0 else str(auth.deathdate) if auth.deathdate is not None else '')
-), 
-                              ]
-                         )
-                         record.add_ordered_field(field100)
-               elif (auth.birthdate or auth.deathdate) and "(" not in str(auth.name):
-                         field100 = pymarc.Field(
-                              tag='100',
-                              indicators=['1', ' '],
-                              subfields=[
-                                        Subfield(code='a', value=re.sub(r'\s*\([^)]*\)', '', str(auth.name) + ',')),
-                                        Subfield(code='d', value=(f"{abs(auth.birthdate)} BCE" if auth.birthdate and auth.birthdate < 0 else str(auth.birthdate) if auth.birthdate is not None else '') + '-' + (f"{abs(auth.deathdate)} BCE" if auth.deathdate and auth.deathdate < 0 else str(auth.deathdate) if auth.deathdate is not None else '')
-),
-                              ]
-                         )
-                         record.add_ordered_field(field100)
-               elif (auth.birthdate is None and auth.deathdate is None) and "(" in str(auth.name):
-                         field100 = pymarc.Field(
-                              tag='100',
-                              indicators=['1', ' '],
-                              subfields=[
-                                        Subfield(code='a', value=re.sub(r'\s*\([^)]*\)', '', str(auth.name) + ',')),
-                                        Subfield(code='q', value=re.search(r'\(([^)]+)\)', str(auth.name)).group(0) + '.'),   
-                              ]
-                         )
-                         record.add_ordered_field(field100)
-               else:
-                         field100 = pymarc.Field(
-                              tag='100',
-                              indicators=['1', ' '],
-                              subfields=[
-                                        Subfield(code='a', value=re.sub(r'\s*\([^)]*\)', '', str(auth.name))),
-                                                                      ]
-                         )
-                         record.add_ordered_field(field100)
-    if num_auths > 1:
-          for auth in dc.authors[1:]:
-               if (auth.birthdate or auth.deathdate) and "(" in str(auth.name):
-
-                         field700 = pymarc.Field(
-                              tag='700',
-                              indicators=['1', ' '],
-                              subfields=[
-                                        Subfield(code='a', value=re.sub(r'\s*\([^)]*\)', '', str(auth.name))),
-                                        Subfield(code='q', value=re.search(r'\(([^)]+)\)', str(auth.name)).group(0) + ','),
-                                        Subfield(code='d', value=(f"{abs(auth.birthdate)} BCE" if auth.birthdate and auth.birthdate < 0 else str(auth.birthdate) if auth.birthdate is not None else '') + '-' + (f"{abs(auth.deathdate)} BCE" if auth.deathdate and auth.deathdate < 0 else str(auth.deathdate) if auth.deathdate is not None else '')),
-                              ]
-                         )
-                         record.add_ordered_field(field700)
-               elif (auth.birthdate or auth.deathdate) and "(" not in str(auth.name):
-                         field700 = pymarc.Field(
-                              tag='700',
-                              indicators=['1', ' '],
-                              subfields=[
-                                        Subfield(code='a', value=re.sub(r'\s*\([^)]*\)', '', str(auth.name) + ',')),
-                                        Subfield(code='d', value=(f"{abs(auth.birthdate)} BCE" if auth.birthdate and auth.birthdate < 0 else str(auth.birthdate) if auth.birthdate is not None else '') + '-' + (f"{abs(auth.deathdate)} BCE" if auth.deathdate and auth.deathdate < 0 else str(auth.deathdate) if auth.deathdate is not None else '')),
-                              ]
-                         )
-                         record.add_ordered_field(field700)
-               elif (auth.birthdate is None and auth.deathdate is None) and "(" in str(auth.name):
-                         field700 = pymarc.Field(
-                              tag='700',
-                              indicators=['1', ' '],
-                              subfields=[
-                                        Subfield(code='a', value=re.sub(r'\s*\([^)]*\)', '', str(auth.name) + ',')),
-                                        Subfield(code='q', value=re.search(r'\(([^)]+)\)', str(auth.name)).group(0) + '.'),   
-                              ]
-                         )
-                         record.add_ordered_field(field700)
-               else:
-                         field700 = pymarc.Field(
-                              tag='700',
-                              indicators=['1', ' '],
-                              subfields=[
-                                        Subfield(code='a', value=re.sub(r'\s*\([^)]*\)', '', str(auth.name))),
-                                                                      ]
-                         )
-                         record.add_ordered_field(field700)
+    first_auth = True
+    for auth in dc.authors:
+        authname, paren = auth_paren(auth.name)
+        subfields = [Subfield(code='a', value=authname)]
+        if paren:
+            subfields.append(Subfield(code='q', value=paren))
+        if auth.birthdate or auth.deathdate:
+            subfields.append(Subfield(code='d', value=auth_dates(auth)))
+        field = pymarc.Field(
+            tag='100' if first_auth else '700',
+            indicators=['1', ' '],
+            subfields=subfields
+        )
+        record.add_ordered_field(field)
 
 
     for att in dc.book.attributes:
@@ -485,7 +446,7 @@ def book_record(dc):
                Subfield(code='a', value=dc.title_no_subtitle + ' :'),
                Subfield(code='b', value=re.sub(r'^[^\n]*\n', '', dc.title).replace('\n', ' ')),
                       ]
-         )
+          )
           else:
         
            for att in dc.book.attributes:
