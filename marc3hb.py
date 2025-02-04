@@ -16,7 +16,6 @@ from libgutenberg.DublinCoreMapping import DublinCoreObject
 
 OB = GutenbergDatabase.Objectbase(False)
 
-
 # compiling a regular expression is a bit of work, only do it once.
 RE_NAME_PAREN = re.compile(r'(\s*\([^)]*\))')
 
@@ -314,7 +313,6 @@ def book_record(dc):
                 )
             record.add_ordered_field(field245)
 
-
     field040 = pymarc.Field(
         tag='040',
         indicators=[' ', ' '],
@@ -323,7 +321,6 @@ def book_record(dc):
             ]
         )
     record.add_ordered_field(field040)
-
 
     if len(dc.languages):
 
@@ -400,7 +397,6 @@ def book_record(dc):
     record.add_ordered_field(field500)
 
     for subject in dc.subjects:
-
         field653 = pymarc.Field(
             tag='653',
             indicators=[' ', ' '],
@@ -480,9 +476,7 @@ def book_record(dc):
 
     return record
 
-
-
-MAXBOOKNUM = 1000
+MAXBOOKNUM = 10000
 
 def main():
     session = OB.get_session()
