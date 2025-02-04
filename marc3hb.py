@@ -13,6 +13,7 @@ from os.path import join
 OB = GutenbergDatabase.Objectbase(False)
 
 # deal with parentheses in author name : 'Ray S. (Librarian)' -> 'Ray S.', '(Librarian)'
+# compiling a regular expression is a bit of work, only do it once.
 RE_NAME_PAREN = re.compile(r'(\s*\([^)]*\))')
 def auth_paren(a_name):
     nm = RE_NAME_PAREN.search(a_name)
@@ -118,7 +119,6 @@ def book_record(dc):
         record.add_ordered_field(field010)
 
 
-    for att in dc.book.attributes:
      if att.fk_attriblist == 20:
     
         field020 = pymarc.Field(
@@ -129,6 +129,177 @@ def book_record(dc):
                ]
                )
         record.add_ordered_field(field020)
+     if att.fk_attriblist == 240:
+    
+        field240 = pymarc.Field(
+            tag='240',
+            indicators=['1', str(att.nonfiling)],
+            subfields=[
+               Subfield(code='a', value=str(att.text)),
+               ]
+               )
+        record.add_ordered_field(field240)
+
+     if att.fk_attriblist == 246:
+    
+        field246 = pymarc.Field(
+            tag='246',
+            indicators=['1', ' '],
+            subfields=[
+               Subfield(code='a', value=str(att.text)),
+               ]
+               )
+        record.add_ordered_field(field246)
+
+     if att.fk_attriblist == 250:
+    
+        field250 = pymarc.Field(
+            tag='250',
+            indicators=[' ', ' '],
+            subfields=[
+               Subfield(code='a', value=str(att.text)),
+               ]
+               )
+        record.add_ordered_field(field250)
+
+     if att.fk_attriblist == 300:
+    
+        field300 = pymarc.Field(
+            tag='300',
+            indicators=[' ', ' '],
+            subfields=[
+               Subfield(code='a', value=str(att.text)),
+               ]
+               )
+        record.add_ordered_field(field300)
+     if att.fk_attriblist == 440:
+    
+        field490 = pymarc.Field(
+            tag='490',
+            indicators=['1', ' '],
+            subfields=[
+               Subfield(code='a', value=str(att.text)),
+               ]
+               )
+        record.add_ordered_field(field490)
+
+     if att.fk_attriblist == 440:
+    
+        field830 = pymarc.Field(
+            tag='830',
+            indicators=[' ', '0'],
+            subfields=[
+               Subfield(code='a', value=str(att.text)),
+               ]
+               )
+        record.add_ordered_field(field830)
+
+     # need to replace carriage returns.  Tag 500 has multiple lines.
+
+     if att.fk_attriblist == 500:
+    
+        field500 = pymarc.Field(
+            tag='500',
+            indicators=[' ', " "],
+            subfields=[
+               Subfield(code='a', value=re.sub('\n', ' ', str(att.text))),
+               ]
+               )
+        record.add_ordered_field(field500)
+
+     if att.fk_attriblist == 505:
+    
+        field505 = pymarc.Field(
+            tag='505',
+            indicators=['0', ' '],
+            subfields=[
+               Subfield(code='a', value=str(att.text)),
+               ]
+               )
+        record.add_ordered_field(field505)
+
+
+     if att.fk_attriblist == 508:
+    
+        field508 = pymarc.Field(
+            tag='508',
+            indicators=[' ', ' '],
+            subfields=[
+               Subfield(code='a', value=str(att.text)),
+               ]
+               )
+        record.add_ordered_field(field508)
+
+     if att.fk_attriblist == 520:
+    
+        field520 = pymarc.Field(
+            tag='520',
+            indicators=[' ', ' '],
+            subfields=[
+               Subfield(code='a', value=str(att.text)),
+               ]
+               )
+        record.add_ordered_field(field520)
+
+     if att.fk_attriblist == 521:
+    
+        field520 = pymarc.Field(
+            tag='521',
+            indicators=['8', ' '],
+            subfields=[
+               Subfield(code='a', value=str(att.text)),
+               ]
+               )
+        record.add_ordered_field(field521)
+
+
+     if att.fk_attriblist == 546:
+    
+        field546 = pymarc.Field(
+            tag='546',
+            indicators=[' ', ' '],
+            subfields=[
+               Subfield(code='a', value=str(att.text)),
+               ]
+               )
+        record.add_ordered_field(field546)
+
+     if att.fk_attriblist == 904:
+    
+        field856 = pymarc.Field(
+            tag='856',
+            indicators=['4', ' '],
+            subfields=[
+               Subfield(code='a', value=str(att.text)),
+               ]
+               )
+        record.add_ordered_field(field856)
+
+     if att.fk_attriblist == 245:
+      
+          if '\n'in dc.title:
+
+           field245 = pymarc.Field(
+            tag='245',
+            indicators=['1', str(att.nonfiling)],
+            subfields=[
+               Subfield(code='a', value=dc.title_no_subtitle + ' :'),
+               Subfield(code='b', value=re.sub(r'^[^\n]*\n', '', dc.title).replace('\n', ' ')),
+                      ]
+          )
+          else:
+        
+           for att in dc.book.attributes:
+            if att.fk_attriblist == 245:
+               
+             field245 = pymarc.Field(
+              tag='245',
+              indicators=['1', str(att.nonfiling)],
+              subfields=[
+               Subfield(code='a', value=dc.title_no_subtitle),
+                      ]
+         )
+          record.add_ordered_field(field245)
 
 
     field040 = pymarc.Field(
@@ -165,53 +336,6 @@ def book_record(dc):
 
 
 
-    for att in dc.book.attributes:
-     if att.fk_attriblist == 240:
-    
-        field240 = pymarc.Field(
-            tag='240',
-            indicators=['1', str(att.nonfiling)],
-            subfields=[
-               Subfield(code='a', value=str(att.text)),
-               ]
-               )
-        record.add_ordered_field(field240)
-
-    for att in dc.book.attributes:
-     if att.fk_attriblist == 246:
-    
-        field246 = pymarc.Field(
-            tag='246',
-            indicators=['1', ' '],
-            subfields=[
-               Subfield(code='a', value=str(att.text)),
-               ]
-               )
-        record.add_ordered_field(field246)
-
-    for att in dc.book.attributes:
-     if att.fk_attriblist == 250:
-    
-        field250 = pymarc.Field(
-            tag='250',
-            indicators=[' ', ' '],
-            subfields=[
-               Subfield(code='a', value=str(att.text)),
-               ]
-               )
-        record.add_ordered_field(field250)
-
-    for att in dc.book.attributes:
-     if att.fk_attriblist == 300:
-    
-        field300 = pymarc.Field(
-            tag='300',
-            indicators=[' ', ' '],
-            subfields=[
-               Subfield(code='a', value=str(att.text)),
-               ]
-               )
-        record.add_ordered_field(field300)
 
 
     field300 = pymarc.Field(
@@ -258,43 +382,6 @@ def book_record(dc):
     record.add_ordered_field(field338)
 
 
-    for att in dc.book.attributes:
-     if att.fk_attriblist == 440:
-    
-        field490 = pymarc.Field(
-            tag='490',
-            indicators=['1', ' '],
-            subfields=[
-               Subfield(code='a', value=str(att.text)),
-               ]
-               )
-        record.add_ordered_field(field490)
-
-    for att in dc.book.attributes:
-     if att.fk_attriblist == 440:
-    
-        field830 = pymarc.Field(
-            tag='830',
-            indicators=[' ', '0'],
-            subfields=[
-               Subfield(code='a', value=str(att.text)),
-               ]
-               )
-        record.add_ordered_field(field830)
-
-     # need to replace carriage returns.  Tag 500 has multiple lines.
-
-    for att in dc.book.attributes:
-     if att.fk_attriblist == 500:
-    
-        field500 = pymarc.Field(
-            tag='500',
-            indicators=[' ', " "],
-            subfields=[
-               Subfield(code='a', value=re.sub('\n', ' ', str(att.text))),
-               ]
-               )
-        record.add_ordered_field(field500)
         
     field500 = pymarc.Field(
             tag='500',
@@ -307,67 +394,6 @@ def book_record(dc):
         
         
 
-    for att in dc.book.attributes:
-     if att.fk_attriblist == 505:
-    
-        field505 = pymarc.Field(
-            tag='505',
-            indicators=['0', ' '],
-            subfields=[
-               Subfield(code='a', value=str(att.text)),
-               ]
-               )
-        record.add_ordered_field(field505)
-
-
-    for att in dc.book.attributes:
-     if att.fk_attriblist == 508:
-    
-        field508 = pymarc.Field(
-            tag='508',
-            indicators=[' ', ' '],
-            subfields=[
-               Subfield(code='a', value=str(att.text)),
-               ]
-               )
-        record.add_ordered_field(field508)
-
-    for att in dc.book.attributes:
-     if att.fk_attriblist == 520:
-    
-        field520 = pymarc.Field(
-            tag='520',
-            indicators=[' ', ' '],
-            subfields=[
-               Subfield(code='a', value=str(att.text)),
-               ]
-               )
-        record.add_ordered_field(field520)
-
-    for att in dc.book.attributes:
-     if att.fk_attriblist == 521:
-    
-        field520 = pymarc.Field(
-            tag='521',
-            indicators=['8', ' '],
-            subfields=[
-               Subfield(code='a', value=str(att.text)),
-               ]
-               )
-        record.add_ordered_field(field521)
-
-
-    for att in dc.book.attributes:
-     if att.fk_attriblist == 546:
-    
-        field546 = pymarc.Field(
-            tag='546',
-            indicators=[' ', ' '],
-            subfields=[
-               Subfield(code='a', value=str(att.text)),
-               ]
-               )
-        record.add_ordered_field(field546)
 
 
 
@@ -403,18 +429,6 @@ def book_record(dc):
                )
     record.add_ordered_field(field264)
 
-    for att in dc.book.attributes:
-     if att.fk_attriblist == 904:
-    
-        field856 = pymarc.Field(
-            tag='856',
-            indicators=['4', ' '],
-            subfields=[
-               Subfield(code='a', value=str(att.text)),
-               ]
-               )
-        record.add_ordered_field(field856)
-
 
     # Author name 
     num_auths = len(dc.authors)
@@ -435,32 +449,6 @@ def book_record(dc):
         record.add_ordered_field(field)
 
 
-    for att in dc.book.attributes:
-      if att.fk_attriblist == 245:
-      
-          if '\n'in dc.title:
-
-           field245 = pymarc.Field(
-            tag='245',
-            indicators=['1', str(att.nonfiling)],
-            subfields=[
-               Subfield(code='a', value=dc.title_no_subtitle + ' :'),
-               Subfield(code='b', value=re.sub(r'^[^\n]*\n', '', dc.title).replace('\n', ' ')),
-                      ]
-          )
-          else:
-        
-           for att in dc.book.attributes:
-            if att.fk_attriblist == 245:
-               
-             field245 = pymarc.Field(
-              tag='245',
-              indicators=['1', str(att.nonfiling)],
-              subfields=[
-               Subfield(code='a', value=dc.title_no_subtitle),
-                      ]
-         )
-          record.add_ordered_field(field245)
 
     # Publisher, date
     for att in dc.book.attributes:
