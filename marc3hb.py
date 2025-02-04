@@ -431,6 +431,7 @@ def book_record(dc):
             indicators=['1', ' '],
             subfields=subfields
         )
+        first_auth = False
         record.add_ordered_field(field)
 
 
