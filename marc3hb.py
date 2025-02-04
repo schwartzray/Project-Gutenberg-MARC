@@ -61,10 +61,10 @@ def book_record(dc):
     if not dc.book:
         print(f"No book for {dc}")
         return None
+
     # Make sure the dc object is of type 'text'
-    if dc.categories:
-        for category in dc.categories:
-            print(f"{dc.book.pk} is a {category}")
+    for category in dc.categories:
+        print(f"{dc.book.pk} is a {category}")
         return None
 
     record = pymarc.Record()
@@ -108,8 +108,8 @@ def book_record(dc):
     match_found = False
 
     for att in dc.book.attributes:
-        if (att.fk_attriblist == 906 and att.fk_attriblist is not None
-            ) or (att.fk_attriblist == 260 and re.search(r'\b\d{4}\b', str(att.fk_attriblist))):
+        if att.fk_attriblist == 906 or (att.fk_attriblist == 260 
+            and re.search(r'\b\d{4}\b', str(att.fk_attriblist))):
             new_field_value = now.strftime('%y%m%d') + 'r' + str(dc.release_date)[:4] \
                 + str(att.text) + 'utu|||||o|||||||||||||| d'
             match_found = True
@@ -476,7 +476,7 @@ def book_record(dc):
 
     return record
 
-MAXBOOKNUM = 10000
+MAXBOOKNUM = 1000
 
 def main():
     session = OB.get_session()
@@ -489,7 +489,7 @@ def main():
         for booknum in booknums:
 
             dc = DublinCoreObject(session=session)
-            dc.load_from_database(booknum.pk)  # booknum is a tuple: (pk,)
+            dc.load_from_database(booknum.pk, load_files=False)  # booknum is a tuple: (pk,)
 
             record = book_record(dc)
             # Check if the record is a valid pymarc.Record object
