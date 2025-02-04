@@ -493,6 +493,7 @@ MAXBOOKNUM = 1000
 
 def main():
     session = OB.get_session()
+    start = datetime.now()
     booknums = session.execute(select(Book.pk).filter(not_(Book.categories.any())))
     
     # Write all records to one MARC file
@@ -512,8 +513,8 @@ def main():
             if booknum.pk > MAXBOOKNUM:
                 break
         writer.close()
-    
-    print("Combined records written to combined_output.mrc")
+    elapsed = datetime.now() - start
+    print(f"Combined records written to combined_output.mrc in {elapsed}")
 
 # boilerplate for main method
 if __name__ == '__main__':
