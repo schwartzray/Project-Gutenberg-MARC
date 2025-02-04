@@ -21,11 +21,11 @@ RE_NAME_PAREN = re.compile(r'(\s*\([^)]*\))')
 
 def auth_paren(a_name):
     """
-    deal with parentheses in author name : 'Ray S. (Librarian)' -> 'Ray S.', '(Librarian)'
+    deal with parentheses in author name : 'Ray S. (Librarian)' -> 'Ray S.', ' (Librarian)'
     """
     nm = RE_NAME_PAREN.search(a_name)
     if nm:
-        return a_name.replace(nm.group(1), ''), nm.group(1)
+        return a_name.replace(nm.group(1), ''), nm.group(1).strip()
     return a_name, None
 
 
@@ -52,7 +52,7 @@ def auth_dates(author):
 
     born = format_dates(author.birthdate, author.birthdate2)
     died = format_dates(author.deathdate, author.deathdate2)
-    return f'{born}-{died}'
+    return f',{born}-{died}'
 
 # book_record function definiton
 
@@ -437,7 +437,7 @@ def book_record(dc):
         authname, paren = auth_paren(auth.name)
         subfields = [Subfield(code='a', value=authname)]
         if paren:
-            subfields.append(Subfield(code='q', value=paren))
+            subfields.append(Subfield(code='q', value=' ' + paren))
         if auth.birthdate or auth.deathdate:
             subfields.append(Subfield(code='d', value=auth_dates(auth)))
         field = pymarc.Field(
