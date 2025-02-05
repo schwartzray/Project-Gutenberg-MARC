@@ -490,22 +490,33 @@ def main():
     booknums = session.execute(select(Book.pk).filter(not_(Book.categories.any())))
 
     # Write all records to one MARC file
-    with open("combined_output1000.mrc", "wb") as marc_file:
-        writer = MARCWriter(marc_file)
-        for booknum in booknums:
-
+    records = []
+    for booknum in booknums:
+        try:
             dc = DublinCoreObject(session=session)
             dc.load_from_database(booknum.pk, load_files=False)  # booknum is a tuple: (pk,)
 
             record = book_record(dc)
             # Check if the record is a valid pymarc.Record object
             if isinstance(record, Record):
-                writer.write(record)
+                records.append(record)
             else:
                 warning(f"Skipping invalid record for book number {booknum.pk}")
             if booknum.pk > MAXBOOKNUM:
                 break
-        writer.close()
+        except Exception as e:
+            # keep going, but report the error
+            error(f"problem making a record for {booknum.pk}:{e}")
+    with open("combined_output.mrc", "wb") as marc_file:
+        marc_writer = MARCWriter(marc_file)
+        for record in records:
+            marc_writer.write(record)
+        marc_writer.close()
+    with open("combined_output.xml", "wb") as xml_file:
+        xml_writer = XMLWriter(xml_file)
+        for record in records:
+            xml_writer.write(record)
+        xml_writer.close()
     elapsed = datetime.now() - start
     info(f"Combined records written to combined_output.mrc in {elapsed}")
 
