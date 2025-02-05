@@ -1,20 +1,23 @@
 '''
  code to write a Marc file from the Project Gutenberg database
 '''
-
+import logging
 import re
 from datetime import datetime
+from logging import debug, info, warning, error
 
 import pymarc
-from pymarc import Subfield, Record, Field, MARCWriter
+from pymarc import Subfield, Record, Field, MARCWriter, XMLWriter
 
 from sqlalchemy import not_
 from sqlalchemy import select
 
 from libgutenberg import GutenbergDatabase
 from libgutenberg.DublinCoreMapping import DublinCoreObject
-from libgutenberg.Logger import critical, debug, error, info
 from libgutenberg.Models import Book
+
+logger = logging.getLogger()
+logger.setLevel(logging.INFO)
 
 OB = GutenbergDatabase.Objectbase(False)
 
@@ -481,6 +484,7 @@ def book_record(dc):
 MAXBOOKNUM = 1000
 
 def main():
+    info('starting record generation')
     session = OB.get_session()
     start = datetime.now()
     booknums = session.execute(select(Book.pk).filter(not_(Book.categories.any())))
