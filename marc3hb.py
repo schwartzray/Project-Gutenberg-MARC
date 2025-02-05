@@ -3,6 +3,7 @@
 '''
 import logging
 import re
+import os
 from datetime import datetime
 from logging import debug, info, warning, error
 
@@ -18,6 +19,10 @@ from libgutenberg.Models import Book
 
 logger = logging.getLogger()
 logger.setLevel(logging.INFO)
+
+FEEDS = os.getenv ('FEEDS')  or ''
+MARCFILE = os.path.join(FEEDS, 'pgmarc.mrc')
+MARCXMLFILE = os.path.join(FEEDS, 'pgmarc.xml')
 
 OB = GutenbergDatabase.Objectbase(False)
 
@@ -507,18 +512,20 @@ def main():
         except Exception as e:
             # keep going, but report the error
             error(f"problem making a record for {booknum.pk}:{e}")
-    with open("combined_output.mrc", "wb") as marc_file:
+    with open(MARCFILE, "wb") as marc_file:
         marc_writer = MARCWriter(marc_file)
         for record in records:
             marc_writer.write(record)
         marc_writer.close()
-    with open("combined_output.xml", "wb") as xml_file:
+    elapsed = datetime.now() - start
+    info(f"MRC records written to {MARCFILE} in {elapsed}")
+    with open(MARCXMLFILE, "wb") as xml_file:
         xml_writer = XMLWriter(xml_file)
         for record in records:
             xml_writer.write(record)
         xml_writer.close()
     elapsed = datetime.now() - start
-    info(f"Combined records written to combined_output.mrc in {elapsed}")
+    info(f"XML records written to {MARCXMLFILE} in {elapsed}")
 
 # boilerplate for main method
 if __name__ == '__main__':
