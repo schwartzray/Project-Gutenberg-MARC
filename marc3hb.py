@@ -7,12 +7,14 @@ from datetime import datetime
 
 import pymarc
 from pymarc import Subfield, Record, Field, MARCWriter
-from sqlalchemy import select
-from sqlalchemy import not_
 
-from libgutenberg.Models import Book
+from sqlalchemy import not_
+from sqlalchemy import select
+
 from libgutenberg import GutenbergDatabase
 from libgutenberg.DublinCoreMapping import DublinCoreObject
+from libgutenberg.Logger import critical, debug, error, info
+from libgutenberg.Models import Book
 
 OB = GutenbergDatabase.Objectbase(False)
 
@@ -59,12 +61,12 @@ def auth_dates(author):
 def book_record(dc):
     # Make sure the dc object exists in db
     if not dc.book:
-        print(f"No book for {dc}")
+        warning(f"No book for {dc}")
         return None
 
     # Make sure the dc object is of type 'text'
     for category in dc.categories:
-        print(f"{dc.book.pk} is a {category}")
+        warning(f"{dc.book.pk} is a {category}")
         return None
 
     record = pymarc.Record()
@@ -496,12 +498,12 @@ def main():
             if isinstance(record, Record):
                 writer.write(record)
             else:
-                print(f"Skipping invalid record for book number {booknum.pk}")
+                warning(f"Skipping invalid record for book number {booknum.pk}")
             if booknum.pk > MAXBOOKNUM:
                 break
         writer.close()
     elapsed = datetime.now() - start
-    print(f"Combined records written to combined_output.mrc in {elapsed}")
+    info(f"Combined records written to combined_output.mrc in {elapsed}")
 
 # boilerplate for main method
 if __name__ == '__main__':
