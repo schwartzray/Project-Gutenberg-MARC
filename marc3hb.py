@@ -72,11 +72,6 @@ def book_record(dc):
         warning(f"No book for {dc}")
         return None
 
-    # Make sure the dc object is of type 'text'
-    for category in dc.categories:
-        warning(f"{dc.book.pk} is a {category}")
-        return None
-
     record = pymarc.Record()
     now = datetime.now()
 
@@ -114,26 +109,16 @@ def book_record(dc):
     # is not coded for MARC lang codes only for ISO639-1--use MARCtag041 instead.
     # Position 39 cataloging source d - Other.
 
-    new_field_value = now.strftime('%y%m%d') + '|||||||||utu|||||o|||||||||||||| d'
     match_found = False
 
     for att in dc.book.attributes:
-        if att.fk_attriblist == 906 or (att.fk_attriblist == 260 
-            and re.search(r'\b\d{4}\b', str(att.fk_attriblist))):
-            new_field_value = now.strftime('%y%m%d') + 'r' + str(dc.release_date)[:4] \
-                + str(att.text) + 'utu|||||o|||||||||||||| d'
-            match_found = True
-            break
-
-    if not match_found:
         new_field_value = now.strftime('%y%m%d') + 'r' + str(dc.release_date)[:4] \
             + '||||utu|||||o|||||||||||||| d'
 
-    field008 = pymarc.Field(tag='008', data=new_field_value)
-    record.add_ordered_field(field008)
 
 
     for att in dc.book.attributes:
+
         if att.fk_attriblist == 10:
 
             field010 = pymarc.Field(
@@ -322,6 +307,20 @@ def book_record(dc):
                 subfields=subfields
                 )
             record.add_ordered_field(field245)
+
+        if not match_found:
+            if att.fk_attriblist == 906 or (att.fk_attriblist == 260 
+                and re.search(r'\b\d{4}\b', str(att.fk_attriblist))):
+                new_field_value = now.strftime('%y%m%d') + 'r' + str(dc.release_date)[:4] \
+                    + str(att.text) + 'utu|||||o|||||||||||||| d'
+                match_found = True
+
+    if not match_found:
+        new_field_value = now.strftime('%y%m%d') + 'r' + str(dc.release_date)[:4] \
+            + '||||utu|||||o|||||||||||||| d'
+    field008 = pymarc.Field(tag='008', data=new_field_value)
+    record.add_ordered_field(field008)
+
 
     field040 = pymarc.Field(
         tag='040',
