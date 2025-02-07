@@ -29,14 +29,16 @@ OB = GutenbergDatabase.Objectbase(False)
 # compiling a regular expression is a bit of work, only do it once.
 RE_NAME_PAREN = re.compile(r'(\s*\([^)]*\))')
 
-def auth_paren(a_name):
+def auth_paren(auth):
     """
     deal with parentheses in author name : 'Ray S. (Librarian)' -> 'Ray S.', ' (Librarian)'
     """
-    nm = RE_NAME_PAREN.search(a_name)
-    if nm:
-        return a_name.replace(nm.group(1), ''), nm.group(1).strip()
-    return a_name, None
+    a_name = auth.name
+    has_paren = RE_NAME_PAREN.search(a_name)
+    comma = ',' if (auth.birthdate or auth.deathdate) else ''
+    if has_paren:
+        return a_name.replace(has_paren.group(1), ''), has_paren.group(1).strip() + comma
+    return a_name + comma, None
 
 
 def auth_dates(author):
@@ -62,7 +64,7 @@ def auth_dates(author):
 
     born = format_dates(author.birthdate, author.birthdate2)
     died = format_dates(author.deathdate, author.deathdate2)
-    return f',{born}-{died}'
+    return f'{born}-{died}'
 
 # book_record function definiton
 
@@ -116,6 +118,7 @@ def book_record(dc):
             + '||||utu|||||o|||||||||||||| d'
 
 
+    ###### Deal with attributes.
 
     for att in dc.book.attributes:
 
@@ -315,6 +318,9 @@ def book_record(dc):
                     + str(att.text) + 'utu|||||o|||||||||||||| d'
                 match_found = True
 
+    ###### Done with attributes!
+
+
     if not match_found:
         new_field_value = now.strftime('%y%m%d') + 'r' + str(dc.release_date)[:4] \
             + '||||utu|||||o|||||||||||||| d'
@@ -441,12 +447,13 @@ def book_record(dc):
 
 
     # Author name
+    # goal is 100 1#$aFowler, T. M.$q(Thaddeus Mortimer),$d1842-1922.
     first_auth = True
     for auth in dc.authors:
-        authname, paren = auth_paren(auth.name)
+        authname, paren = auth_paren(auth)
         subfields = [Subfield(code='a', value=authname)]
         if paren:
-            subfields.append(Subfield(code='q', value=' ' + paren))
+            subfields.append(Subfield(code='q', value=paren))
         if auth.birthdate or auth.deathdate:
             subfields.append(Subfield(code='d', value=auth_dates(auth)))
         field = pymarc.Field(
@@ -485,7 +492,7 @@ def book_record(dc):
 
     return record
 
-MAXBOOKNUM = 1000
+MAXBOOKNUM = 10000
 
 def main():
     info('starting record generation')
