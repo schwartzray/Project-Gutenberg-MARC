@@ -4,6 +4,7 @@
 import logging
 import re
 import os
+import sys
 from datetime import datetime
 from logging import debug, info, warning, error
 
@@ -21,8 +22,7 @@ logger = logging.getLogger()
 logger.setLevel(logging.INFO)
 
 FEEDS = os.getenv ('FEEDS')  or ''
-MARCFILE = os.path.join(FEEDS, 'pgmarc.mrc')
-MARCXMLFILE = os.path.join(FEEDS, 'pgmarc.xml')
+
 
 OB = GutenbergDatabase.Objectbase(False)
 
@@ -487,13 +487,45 @@ def book_record(dc):
 
     return record
 
-MAXBOOKNUM = 10000
+MAXBOOKNUM = 99998 # 99999 is a dummy record
 
 def main():
+    try:
+        if len(sys.argv) == 1:
+            booknum = 0
+            minbooknum = 1
+            maxbooknum = MAXBOOKNUM
+        if len(sys.argv) == 2:
+            booknum = int(sys.argv[1])
+            minbooknum = 0
+            maxbooknum = MAXBOOKNUM
+        elif len(sys.argv) == 3:
+            booknum = 0
+            minbooknum = int(sys.argv[1])
+            maxbooknum = int(sys.argv[2])
+    except ValueError:
+        print('syntax: python pgmarc.py # all records')
+        print('    or: python pgmarc.py [booknum]y # single record')
+        print('    or: python pgmarc.py [minbooknum] [maxbooknum] # record range')
+        exit()
+
+    MARCFILE = os.path.join(FEEDS, f"{booknum or 'pgmarc'}.mrc")
+    MARCXMLFILE = os.path.join(FEEDS, f"{booknum or 'pgmarc'}.xml")    
+
     info('starting record generation')
     session = OB.get_session()
     start = datetime.now()
-    booknums = session.execute(select(Book.pk).filter(not_(Book.categories.any())))
+
+    # these queries exclude non-text items
+    if booknum > 0:
+        booknums = session.execute(select(Book.pk).filter(
+            not_(Book.categories.any())).filter(Book.pk == booknum))
+    else:
+        booknums = session.execute(select(Book.pk).filter(
+            not_(Book.categories.any())).filter(
+            Book.pk >= minbooknum).filter(
+            Book.pk <= maxbooknum)
+            )
 
     # Write all records to one MARC file
     records = []
