@@ -113,11 +113,6 @@ def book_record(dc):
 
     match_found = False
 
-    for att in dc.book.attributes:
-        new_field_value = now.strftime('%y%m%d') + 'r' + str(dc.release_date)[:4] \
-            + '||||utu|||||o|||||||||||||| d'
-
-
     ###### Deal with attributes.
 
     for att in dc.book.attributes:
