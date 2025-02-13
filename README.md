@@ -21,12 +21,12 @@ r
 2005  
 008/11-14  
 1955  
-For publications that PG does NOT have the original date
-008/06
-r
-008/07-10
-2005
-008/11-14
+For publications that PG does NOT have the original date  
+008/06  
+r  
+008/07-10  
+2005  
+008/11-14  
 uuuu
 
 There is no physical description of the item in the database.   We are using the MARC RDA tags.   
