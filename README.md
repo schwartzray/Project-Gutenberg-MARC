@@ -13,14 +13,14 @@ For those titles that DO have original publication data, this 534 would be added
 534  \\$pOriginally published:$cTokyo, Baifukan, 1955
 
 The fixed field would be treated as so:
-Use both dates in the 008 - original publication and PG release date.
-For publications that PG does have the original date
-008/06
-r
-008/07-10
-2005
-008/11-14
-1955
+Use both dates in the 008 - original publication and PG release date.  
+For publications that PG does have the original date  
+008/06  
+r  
+008/07-10  
+2005  
+008/11-14  
+1955  
 For publications that PG does NOT have the original date
 008/06
 r
