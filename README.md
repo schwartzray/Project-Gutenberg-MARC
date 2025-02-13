@@ -29,10 +29,10 @@ r
 008/11-14
 uuuu
 
-There is no physical description of the item in the database.   We are using the MARC RDA tags.  
-300  \\$a1 online resource :$bmultiple file formats
-336  \\$atext$btxt$2rdacontent
-337  \\$acomputer$bc$2rdamedia
+There is no physical description of the item in the database.   We are using the MARC RDA tags.   
+300  \\$a1 online resource :$bmultiple file formats  
+336  \\$atext$btxt$2rdacontent  
+337  \\$acomputer$bc$2rdamedia  
 338  \\$aonline resource$bcr$2rdacarrier
 
 Any series statements I tagged it with 490 and added an 830.
