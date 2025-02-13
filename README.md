@@ -6,10 +6,10 @@ Of the 73,000 records, 63,000 do not have data for a 260 or 264 MARC tag (nor is
 
 264 \1$aUnited States :$bProject Gutenberg,$c2005 
 
-For the titles with no publication data, a 534 note is added
+For the titles with no publication data, a 534 note is added.  
 534  \\$nOriginal publication data not identified
 
-For those titles that DO have original publication data, this 534 would be added.
+For those titles that DO have original publication data, this 534 would be added.  
 534  \\$pOriginally published:$cTokyo, Baifukan, 1955
 
 The fixed field would be treated as so:
