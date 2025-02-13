@@ -1,4 +1,4 @@
-The MARC record extract is generated weekly from the Project Gutenberg Postgres database.  This process uses a python script which recreates each MARC record on a weekly basis from the entire collection of titles, excluding non-textual titles such as maps, audio files, data sets and so on. 
+The MARC record extract is generated weekly from the Project Gutenberg Postgres database.  This process uses a python script which recreates each MARC record from the entire collection of titles, excluding non-textual titles such as maps, audio files, data sets and so on. 
 
 ## Description 2xx-5xx  
 *(plus note on 008)*
