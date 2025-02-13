@@ -1,6 +1,6 @@
 The MARC record extract is generated weekly from the Project Gutenberg Postgres database.  This process uses a python script which recreates each MARC record on a weekly basis from the entire collection of titles, excluding non-textual titles such as maps, audio files, data sets and so on. 
 
-Description 2xx-5xx
+**Description 2xx-5xx** plus note on 008
 
 Of the 73,000 records, 63,000 do not have data for a 260 or 264 MARC tag (nor is there a publication year).  The option we decided upon is to use the 264 with the 1 indicator 
 
