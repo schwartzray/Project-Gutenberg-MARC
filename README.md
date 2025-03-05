@@ -5,7 +5,7 @@ The MARC record extract is generated weekly from the Project Gutenberg Postgres 
 
 Of the 73,000 records, 63,000 do not have data for a 260 or 264 MARC tag (nor is there a publication year).  The option we decided upon is to use the 264 with the 1 indicator 
 
-264 \1$aUnited States :$bProject Gutenberg,$c2005 
+264 \1$aSalt Lake City, UT :$bProject Gutenberg,$c2005 
 
 For the titles with no publication data, a 534 note is added.  
 534  \\$nOriginal publication data not identified
