@@ -31,7 +31,7 @@ RE_NAME_PAREN = re.compile(r'(\s*\([^)]*\))')
 
 def auth_paren(auth):
     """
-    deal with parentheses in author name : 'Ray S. (Librarian)' -> 'Ray S.', ' (Librarian)'
+    deal with parentheses in author name : 'Fowler, T. M.$q(Thaddeus Mortimer)' -> Fowler, T. M.$q(Thaddeus Mortimer),$d1842-1922.'
     """
     a_name = auth.name
     has_paren = RE_NAME_PAREN.search(a_name)
@@ -77,6 +77,7 @@ def book_record(dc):
     record = pymarc.Record()
     now = datetime.now()
 
+    # Codes for the record leader
     # c - Corrected or revised, a - Language material, m - Monograph/Item,
     # 3 - Abbreviated level, u - Unknown
 
@@ -92,27 +93,23 @@ def book_record(dc):
     field003 = pymarc.Field(tag='003', data='UtSlPG')
     record.add_ordered_field(field003)
 
+    # Codes for 006 fixed field.   
     # m - Computer file/Electronic resource - Coded data elements relating to either a computer
     # file or an electronic resource in form.
 
     field006 = pymarc.Field(tag='006', data='m')
     record.add_ordered_field(field006)
 
+    # Codes for 007 fixed field.   
     # c - Electronic resource, r - Remote, n - Not applicable
 
     field007 = pymarc.Field(tag='007', data='cr n')
     record.add_ordered_field(field007)
 
-    # 008 in looking at pub date some have a 906 others have a 4 digit year in 260.
-    # Have to write an expression to capture that.
-    # If there is a date, use 'r' in position 6 then 11-14 for the date.
-    # Use year in release date for 7 to 10. Positions 15-17 - Place of publication, production, or
-    # execution 'utu'.  For position 23 'o' for online.  Not coding for language, because database
-    # is not coded for MARC lang codes only for ISO639-1--use MARCtag041 instead.
-    # Position 39 cataloging source d - Other.
-
     match_found = False
 
+    # 008 is built starting at line 308
+ 
     ###### Deal with attributes.
 
     for att in dc.book.attributes:
@@ -184,6 +181,8 @@ def book_record(dc):
                 )
             record.add_ordered_field(field300)
 
+        # RDA does not use MARC tag 440.  Uses 490 and 830 instead.
+     
         if att.fk_attriblist == 440:
 
             field490 = pymarc.Field(
@@ -306,6 +305,15 @@ def book_record(dc):
                 )
             record.add_ordered_field(field245)
 
+    # In constructing the 008, many records do NOT have an original publication date.  
+    # We coded 'r' - reprint in position 6, and then 7-10 for the Gutenberg's release date. If 
+    # original publication date is available (from either the 906 MARC tag or 260 MARC tag, 
+    # we code it in 11-14.  For positions 15-17 - Place of publication, production, or 
+    # execution, we coded 'utu'.  For position 23, we coded 'o' for online. 
+    # We are not coding for language in 008, because the database is 
+    # not coded with MARC lang codes. Rather the database includes language codes in 
+    # ISO639-1—so we use MARC tag 041 instead. For position 39 cataloging source coded 'd' - Other.
+     
         if not match_found:
             if att.fk_attriblist == 906 or (att.fk_attriblist == 260 
                 and re.search(r'\b\d{4}\b', str(att.fk_attriblist))):
