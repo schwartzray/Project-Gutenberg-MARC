@@ -30,12 +30,12 @@ There is no physical description of the item in the database.   We are using th
 337  \\$acomputer$bc$2rdamedia  
 338  \\$aonline resource$bcr$2rdacarrier
 
-Any series statements I tagged it with 490 and added an 830.
+Any series statements we tagged with 490 and added an 830.
 
 
 ## Access Points 1xx, 6xx, 7xx
 
-The authors in the database are not delineated by personal, corporate or meeting names.  Neither is there any indication that whether the personal name is a forename or a surname.  Since the vast majority are personal surnames, I assigned MARC tags 100 and 700 to all authors regardless of author type.  Also, the 1st indicator is set at 1 for surname for all records.   Needless to say, this is far from ideal.  The database does have separate fields for birth and death dates and I was able to assign them to $d.  The Fuller Form of Name is in the name field but the script will assign a $q before the opening parenthesis.  
+The authors in the database are not delineated by personal, corporate or meeting names.  Neither is there any indication that whether the personal name is a forename or a surname.  Since the vast majority are personal surnames, We assigned MARC tags 100 and 700 to all authors regardless of author type.  Also, the 1st indicator is set at 1 for surname for all records.   Needless to say, this is far from ideal.  The database does have separate fields for birth and death dates and we were able to assign them to $d.  The Fuller Form of Name is in the name field but the script will assign a $q before the opening parenthesis.  
 
 Subject headings are assigned to the records, in either LCSH, personal and corporate names—but there is no distrintion in the database as to which headings are LCSH or not.  In addition, they are not broken down by subfield—they are a continuous string of text (e.g., \\$aAmerican literature -- 19th century – Periodicals).  So, we decided to use 653 instead of 650/600/610.
 
