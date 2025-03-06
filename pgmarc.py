@@ -1,6 +1,17 @@
-'''
- code to write a Marc file from the Project Gutenberg database
-'''
+"""
+
+PGMarc.py
+
+Copyright 2025 by Ray Schwartz, Eric Hellman, and Project Gutenberg
+
+Distributable under the GNU General Public License Version 3 or newer.
+
+Code to write Marc files from the Project Gutenberg database
+
+See MARC.md for more information
+
+"""
+
 import logging
 import re
 import os
