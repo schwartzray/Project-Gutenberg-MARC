@@ -441,7 +441,7 @@ def book_record(dc):
         indicators=['4', '0'],
         subfields=[
             Subfield(
-                code='a',
+                code='u',
                 value=f"https://www.gutenberg.org/ebooks/{str(dc.project_gutenberg_id)}"
                 )
             ]
