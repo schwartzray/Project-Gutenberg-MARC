@@ -292,7 +292,7 @@ def book_record(dc):
                 tag='856',
                 indicators=['4', ' '],
                 subfields=[
-                    Subfield(code='a', value=str(att.text)),
+                    Subfield(code='u', value=str(att.text)),
                     ]
                 )
             record.add_ordered_field(field856)
