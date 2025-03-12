@@ -364,8 +364,8 @@ def book_record(dc):
             )
         record.add_ordered_field(field041)
 
-    field50 = pymarc.Field(
-        tag='50',
+    field050 = pymarc.Field(
+        tag='050',
         indicators=[' ', "4"],
         subfields=[
             Subfield(code='a', value=str(loccs.id)) for loccs in dc.loccs
