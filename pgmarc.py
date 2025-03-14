@@ -371,7 +371,7 @@ def book_record(dc):
             Subfield(code='a', value=str(loccs.id)) for loccs in dc.loccs
             ]
         )
-    record.add_ordered_field(field50)
+    record.add_ordered_field(field050)
 
     field300 = pymarc.Field(
         tag='300',
@@ -523,9 +523,9 @@ def main():
             minbooknum = int(sys.argv[1])
             maxbooknum = int(sys.argv[2])
     except ValueError:
-        print('syntax: python pgmarc.py # all records')
-        print('    or: python pgmarc.py [booknum]y # single record')
-        print('    or: python pgmarc.py [minbooknum] [maxbooknum] # record range')
+        print('syntax: pgmarc # all records')
+        print('    or: pgmarc [booknum]y # single record')
+        print('    or: pgmarc [minbooknum] [maxbooknum] # record range')
         exit()
 
     MARCFILE = os.path.join(FEEDS, f"{booknum or 'pgmarc'}.mrc")
@@ -564,6 +564,7 @@ def main():
         except Exception as e:
             # keep going, but report the error
             error(f"problem making a record for {booknum.pk}:{e}")
+            session.rollback()
     with open(MARCFILE, "wb") as marc_file:
         marc_writer = MARCWriter(marc_file)
         for record in records:
